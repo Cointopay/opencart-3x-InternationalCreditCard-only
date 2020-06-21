@@ -1,7 +1,7 @@
 ##CREDIT CARD ONLY FIAT OPTION FOR IN CASE YOU WANT TO SEPARATE THEM##
 
 # This is the generic international CC option #
-# reminder: config endpoint url is https://github.com/Cointopay/opencart-3x-InternationalCreditCard-only/blob/master/catalog/controller/extension/payment/cointopay_fiat_intl_cc.php
+reminder: config endpoint url is https://github.com/Cointopay/opencart-3x-InternationalCreditCard-only/blob/master/catalog/controller/extension/payment/cointopay_fiat_intl_cc.php
 
 # COINTOPAY PAYMENT METHOD FOR OPENCART 3.0.X
 
