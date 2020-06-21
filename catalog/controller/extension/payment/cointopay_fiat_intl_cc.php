@@ -220,7 +220,7 @@ class ControllerExtensionPaymentCointopayFiatIntlCC extends Controller
                     $status = $_REQUEST['status'];
                     if ($is_live == 'false') {
                         $stripe_transaction_code = (!empty(filter_var($_REQUEST['stripe_transaction_id'], FILTER_SANITIZE_STRING))) ? filter_var($_REQUEST['stripe_transaction_id'], FILTER_SANITIZE_STRING) : '';
-                        $url = "https://surplus17.com:9443/ctp/?call=verifyTransaction&stripeTransactionCode=" . $stripe_transaction_code;
+                        $url = "https://surplus17.com:9443/ctpv2/?call=verifyTransaction&stripeTransactionCode=" . $stripe_transaction_code;
                         $ctp_response = $this->validateWithCTP($url);
                         if ($ctp_response['statusCode'] == 200 && $ctp_response['data'] == 'fail') {
                             $status = "failed";
