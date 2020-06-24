@@ -59,8 +59,8 @@ class ControllerExtensionPaymentCointopayFiatIntlCC extends Controller
                 if ($php_arr->error == '' || empty($php_arr->error)) {
                     $this->model_checkout_order->addOrderHistory($php_arr->CustomerReferenceNr, $this->config->get('payment_cointopay_fiat_intl_cc_order_status_id'));
                     // Redirect to stripe
-                    $amount = number_format($php_arr->Amount, 2);
-                    $url = "https://surplus17.com:9443/ctp/?call=stripe&transactionID={$php_arr->TransactionID}&amount={$amount}&currency=EUR&customerReferenceNr={$this->session->data['order_id']}&confirmCode={$php_arr->Security}";
+                    $amount = number_format($php_arr->OriginalAmount, 2);
+                    $url = "https://surplus17.com:9443/ctpv2/?call=stripe&transactionID={$php_arr->TransactionID}&amount={$amount}&currency=EUR&customerReferenceNr={$this->session->data['order_id']}&confirmCode={$php_arr->Security}";
                     header("Location:{$url}");
                 } else {
                     $data1['error'] = $php_arr->error;
@@ -220,7 +220,7 @@ class ControllerExtensionPaymentCointopayFiatIntlCC extends Controller
                     $status = $_REQUEST['status'];
                     if ($is_live == 'false') {
                         $stripe_transaction_code = (!empty(filter_var($_REQUEST['stripe_transaction_id'], FILTER_SANITIZE_STRING))) ? filter_var($_REQUEST['stripe_transaction_id'], FILTER_SANITIZE_STRING) : '';
-                        $url = "https://surplus17.com:9443/ctp/?call=verifyTransaction&stripeTransactionCode=" . $stripe_transaction_code;
+                        $url = "https://surplus17.com:9443/ctpv2/?call=verifyTransaction&stripeTransactionCode=" . $stripe_transaction_code;
                         $ctp_response = $this->validateWithCTP($url);
                         if ($ctp_response['statusCode'] == 200 && $ctp_response['data'] == 'fail') {
                             $status = "failed";
