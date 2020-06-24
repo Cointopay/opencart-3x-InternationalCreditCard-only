@@ -198,11 +198,20 @@ class ControllerExtensionPaymentCointopayFiatIntlCC extends Controller
             if (200 !== $transactionData['status_code']) {
                 echo $transactionData['message'];
                 exit;
-            } else if (!$order || $order['total'] != $transactionData['data']['OriginalAmount']) {
-                echo "Fraud detected";
+            } else if (!$order) {
+                echo "No order information found!";
                 exit;
             } else {
-                if ($transactionData['data']['Security'] != $_GET['confirm_code']) {
+                //
+                $total = $order['total'];
+                if ($order['currency_value'] > 0) {
+                    $total = $total * $order['currency_value'];
+                    $total = number_format($total, 2);
+                }
+                if ($total != $transactionData['data']['OriginalAmount']) {
+                    echo "Fraud detected";
+                    exit;
+                } else if ($transactionData['data']['Security'] != $_GET['confirm_code']) {
                     echo "Data mismatch! ConfirmCode doesn't match";
                     exit;
                 } elseif ($transactionData['data']['CustomerReferenceNr'] != $_GET['customer_reference_nr']) {
