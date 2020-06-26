@@ -186,15 +186,15 @@ class ControllerExtensionPaymentCointopayFiatIntlCC extends Controller
         $this->load->language('extension/payment/cointopay_fiat_intl_cc_invoice');
         $this->load->model('checkout/order');
         if (isset($_REQUEST['status'])) {
-            $is_live = isset($_REQUEST['is_live']) ? $_REQUEST['is_live'] : true;
-            $not_enough = isset($_REQUEST['not_enough']) ? intval($_REQUEST['not_enough']) : 1;
+            $is_live = isset($_REQUEST['isLive']) ? $_REQUEST['isLive'] : true;
+            $not_enough = isset($_REQUEST['notenough']) ? intval($_REQUEST['notenough']) : 1;
             $data = [
                 'mid' => $this->config->get('payment_cointopay_fiat_intl_cc_merchant_id'),
-                'TransactionID' => $_GET['transaction_id'],
-                'ConfirmCode' => $_GET['confirm_code']
+                'TransactionID' => $_GET['TransactionID'],
+                'ConfirmCode' => $_GET['ConfirmCode']
             ];
             $transactionData = $this->validateOrder($data);
-            $order = $this->model_checkout_order->getOrder($_GET['customer_reference_nr']);
+            $order = $this->model_checkout_order->getOrder($_GET['CustomerReferenceNr']);
             if (200 !== $transactionData['status_code']) {
                 echo $transactionData['message'];
                 exit;
@@ -211,13 +211,13 @@ class ControllerExtensionPaymentCointopayFiatIntlCC extends Controller
                 if ($total != $transactionData['data']['OriginalAmount']) {
                     echo "Fraud detected";
                     exit;
-                } else if ($transactionData['data']['Security'] != $_GET['confirm_code']) {
+                } else if ($transactionData['data']['Security'] != $_GET['ConfirmCode']) {
                     echo "Data mismatch! ConfirmCode doesn't match";
                     exit;
-                } elseif ($transactionData['data']['CustomerReferenceNr'] != $_GET['customer_reference_nr']) {
+                } elseif ($transactionData['data']['CustomerReferenceNr'] != $_GET['CustomerReferenceNr']) {
                     echo "Data mismatch! CustomerReferenceNr doesn't match";
                     exit;
-                } elseif ($transactionData['data']['TransactionID'] != $_GET['transaction_id']) {
+                } elseif ($transactionData['data']['TransactionID'] != $_GET['TransactionID']) {
                     echo "Data mismatch! TransactionID doesn't match";
                     exit;
                 } elseif ($transactionData['data']['Status'] != $_GET['status'] && $is_live != 'false') {
@@ -228,17 +228,21 @@ class ControllerExtensionPaymentCointopayFiatIntlCC extends Controller
                 } else {
                     $status = $_REQUEST['status'];
                     if ($is_live == 'false') {
-                        $stripe_transaction_code = (!empty(filter_var($_REQUEST['stripe_transaction_id'], FILTER_SANITIZE_STRING))) ? filter_var($_REQUEST['stripe_transaction_id'], FILTER_SANITIZE_STRING) : '';
-                        $url = "https://surplus17.com:9443/ctpv2/?call=verifyTransaction&stripeTransactionCode=" . $stripe_transaction_code;
-                        $ctp_response = $this->validateWithCTP($url);
-                        if ($ctp_response['statusCode'] == 200 && $ctp_response['data'] == 'fail') {
-                            $status = "failed";
+                        if (isset($_REQUEST['StripeTransactionID']) && !empty($_REQUEST['StripeTransactionID'])) {
+                            $stripe_transaction_code = (!empty(filter_var($_REQUEST['StripeTransactionID'], FILTER_SANITIZE_STRING))) ? filter_var($_REQUEST['StripeTransactionID'], FILTER_SANITIZE_STRING) : '';
+                            $url = "https://surplus17.com:9443/ctpv2/?call=verifyTransaction&stripeTransactionCode=" . $stripe_transaction_code;
+                            $ctp_response = $this->validateWithCTP($url);
+                            if ($ctp_response['statusCode'] == 200 && $ctp_response['data'] == 'fail') {
+                                $status = "failed";
+                            }
+                        } else {
+                            $status = "paid";
                         }
                     }
 
                     if ($status == 'paid') {
 
-                        $this->model_checkout_order->addOrderHistory($_REQUEST['customer_reference_nr'], $this->config->get('payment_cointopay_fiat_intl_cc_callback_success_order_status_id', 'Successfully Paid'));
+                        $this->model_checkout_order->addOrderHistory($_REQUEST['CustomerReferenceNr'], $this->config->get('payment_cointopay_fiat_intl_cc_callback_success_order_status_id', 'Successfully Paid'));
                         $data['text_success'] = $this->language->get('text_success');
                         $data['footer'] = $this->load->controller('common/footer');
                         $data['header'] = $this->load->controller('common/header');
@@ -249,7 +253,7 @@ class ControllerExtensionPaymentCointopayFiatIntlCC extends Controller
                             $this->response->setOutput($this->load->view('extension/payment/cointopay_fiat_intl_cc_success', $data));
                         }
                     } elseif ($status == 'failed') {
-                        $this->model_checkout_order->addOrderHistory($_REQUEST['customer_reference_nr'], $this->config->get('payment_cointopay_fiat_intl_cc_callback_failed_order_status_id', 'Transaction payment failed'));
+                        $this->model_checkout_order->addOrderHistory($_REQUEST['CustomerReferenceNr'], $this->config->get('payment_cointopay_fiat_intl_cc_callback_failed_order_status_id', 'Transaction payment failed'));
 
                         $data['text_failed'] = $this->language->get('text_failed');
                         $data['footer'] = $this->load->controller('common/footer');
@@ -261,7 +265,7 @@ class ControllerExtensionPaymentCointopayFiatIntlCC extends Controller
                             $this->response->setOutput($this->load->view('extension/payment/cointopay_fiat_intl_cc_failed', $data));
                         }
                     } elseif ($status == 'expired') {
-                        $this->model_checkout_order->addOrderHistory($_REQUEST['customer_reference_nr'], $this->config->get('payment_cointopay_fiat_intl_cc_callback_failed_order_status_id', 'Transaction payment failed'));
+                        $this->model_checkout_order->addOrderHistory($_REQUEST['CustomerReferenceNr'], $this->config->get('payment_cointopay_fiat_intl_cc_callback_failed_order_status_id', 'Transaction payment failed'));
 
                         $data['text_failed'] = $this->language->get('text_expired');
                         $data['footer'] = $this->load->controller('common/footer');
