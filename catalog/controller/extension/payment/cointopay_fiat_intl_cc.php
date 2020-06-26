@@ -234,6 +234,8 @@ class ControllerExtensionPaymentCointopayFiatIntlCC extends Controller
                             $ctp_response = $this->validateWithCTP($url);
                             if ($ctp_response['statusCode'] == 200 && $ctp_response['data'] == 'fail') {
                                 $status = "failed";
+                            } else {
+                                $status = "paid";
                             }
                         } else {
                             $status = "paid";
