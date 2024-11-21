@@ -1,17 +1,19 @@
 <?php
 
-class ModelExtensionPaymentCointopayFiatIntlCC extends Model
+class ModelExtensionPaymentCointopayCC extends Model
 {
     public function getMethod($address, $total)
     {
-        $this->load->language('extension/payment/cointopay_fiat_intl_cc');
+        $this->load->language('extension/payment/cointopay_cc');
 
-        return array(
-            'code' => 'cointopay_fiat_intl_cc',
-            'title' => $this->config->get('payment_cointopay_fiat_intl_cc_display_name'),
+        $method_data = array(
+            'code' => 'cointopay_cc',
+            'title' => $this->config->get('payment_cointopay_cc_display_name'),
             'terms' => '',
-            'sort_order' => $this->config->get('payment_cointopay_fiat_intl_cc_sort_order')
+            'sort_order' => $this->config->get('payment_cointopay_cc_sort_order')
         );
+
+        return $method_data;
     }
 
     public function confirm($order_id, $order_status_id, $comment = '', $notify = false)
@@ -98,7 +100,7 @@ class ModelExtensionPaymentCointopayFiatIntlCC extends Model
 
             // Order Totals
             $order_total_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order_total` WHERE order_id = '" . (int)$order_id . "' ORDER BY sort_order ASC");
-
+            //print_r($order_total_query);exit;
             foreach ($order_total_query->rows as $order_total) {
                 $this->load->model('total/' . $order_total['code']);
 

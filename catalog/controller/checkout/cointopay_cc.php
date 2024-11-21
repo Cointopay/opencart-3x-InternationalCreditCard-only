@@ -1,5 +1,5 @@
 <?php
-class ControllerCheckoutCointopayFiatIntlCC extends Controller {
+class ControllerCheckoutCointopayCC extends Controller {
 	public function index($id = '') {
 		$this->load->language('checkout/success');
 
